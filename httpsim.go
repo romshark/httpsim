@@ -32,6 +32,8 @@ func CtxInfoValue(ctx context.Context) (info CtxInfo) {
 // CtxInfo is written to the request context after handling.
 type CtxInfo struct {
 	MatchedResourceIndex int
+	Delay                time.Duration
+	Replaced             bool
 }
 
 // RandProvider is a random values generator.
@@ -121,11 +123,13 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	matchedResourceIndex := Match(r, conf)
 	if matchedResourceIndex != -1 {
 		ctx := r.Context()
+		delay, replaced := m.apply(w, &conf.Resources[matchedResourceIndex].Effect)
 		ctx = context.WithValue(ctx, CtxKeyInfo, CtxInfo{
 			MatchedResourceIndex: matchedResourceIndex,
+			Delay:                delay,
+			Replaced:             replaced,
 		})
 		r = r.WithContext(ctx)
-		replaced := m.apply(w, &conf.Resources[matchedResourceIndex].Effect)
 		if replaced {
 			return
 		}
@@ -188,9 +192,12 @@ func MatchResource(r *http.Request, c *config.Resource) bool {
 
 // apply returns true if the request is handled and no further handling should be done,
 // otherwise returns false.
-func (m *Middleware) apply(w http.ResponseWriter, c *config.Effect) (replaced bool) {
+func (m *Middleware) apply(w http.ResponseWriter, c *config.Effect) (
+	delay time.Duration, replaced bool,
+) {
 	if c.Delay != nil {
-		m.sleeper.Sleep(m.rand.Dur(c.Delay.Min, c.Delay.Max))
+		delay = m.rand.Dur(c.Delay.Min, c.Delay.Max)
+		m.sleeper.Sleep(delay)
 	}
 	if c.Replace != nil {
 		for header, value := range c.Replace.Headers {
@@ -200,7 +207,7 @@ func (m *Middleware) apply(w http.ResponseWriter, c *config.Effect) (replaced bo
 			_, _ = w.Write([]byte(*c.Replace.Body))
 		}
 		w.WriteHeader(int(c.Replace.StatusCode))
-		return true
+		return delay, true
 	}
-	return false
+	return delay, false
 }
