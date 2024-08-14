@@ -268,6 +268,7 @@ func (s *MockSleep) Sleep(d time.Duration) { s.Cumulative += d }
 var _ httpsim.Sleeper = new(MockSleep)
 
 func TestHandleDur(t *testing.T) {
+	expectedDelay := NewDuration(t, "1.394636475s")
 	conf := config.Config{
 		Resources: []config.Resource{
 			{Effect: config.Effect{
@@ -283,6 +284,7 @@ func TestHandleDur(t *testing.T) {
 			info := httpsim.CtxInfoValue(r.Context())
 			require.Equal(t, httpsim.CtxInfo{
 				MatchedResourceIndex: 0,
+				Delay:                expectedDelay,
 			}, info)
 		},
 	)
@@ -292,7 +294,7 @@ func TestHandleDur(t *testing.T) {
 	s.ServeHTTP(rec, req)
 	require.True(t, nextInvoked)
 
-	require.Equal(t, NewDuration(t, "1.394636475s"), mockSleep.Cumulative)
+	require.Equal(t, expectedDelay, mockSleep.Cumulative)
 	require.Len(t, (rec.Header()), 0)
 	require.Equal(t, http.StatusOK, rec.Code)
 	require.Zero(t, rec.Body.String())
