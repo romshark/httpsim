@@ -49,4 +49,21 @@ resources:
         max: 1s
 ```
 
+## Middleware
+
+Example of using httpsim as middleware:
+
+```go
+// Use httpsim middleware for simulating error responses and delays.
+httpsimConf, err := httpsim.LoadConfigFile("httpsim.yaml")
+if err != nil {
+	panic(err)
+}
+// Wrap your HTTP handler.
+withHTTPSim := httpsim.NewMiddleware(
+	yourHandler, *httpsimConf, httpsim.DefaultSleep, httpsim.DefaultRand,
+)
+err = http.ListenAndServe(":8080", withHTTPSim)
+```
+
 See [github.com/gobwas/glob](https://github.com/gobwas/glob) for how to use globs.

@@ -5,6 +5,7 @@ package httpsim
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"slices"
 	"sync/atomic"
@@ -14,6 +15,14 @@ import (
 
 	"github.com/romshark/httpsim/config"
 )
+
+type Config = config.Config
+
+// LoadConfig loads config from arbitrary reader.
+func LoadConfig(src io.Reader) (*Config, error) { return config.Load(src) }
+
+// LoadConfigFile loads config from file.
+func LoadConfigFile(file string) (*Config, error) { return config.LoadFile(file) }
 
 // CtxKey is a context.Context key type.
 type CtxKey int8

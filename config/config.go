@@ -172,6 +172,7 @@ func (g *GlobExpression) Match(s string) bool {
 // Validate returns an error if c is invalid, otherwise returns nil.
 func Validate(c Config) error { return yamagiconf.Validate(c) }
 
+// Load loads config from arbitrary reader.
 func Load(src io.Reader) (*Config, error) {
 	var c Config
 	// Use standard YAML decoder but utilize yamagiconf validation.
