@@ -200,6 +200,24 @@ resources:
 	require.Nil(t, c)
 }
 
+func TestLoadFileNoEffect(t *testing.T) {
+	p := TmpFile(t, `
+resources:
+  - path: /a
+    effect:
+  - path: /b
+    effect: null
+`)
+	c, err := config.LoadFile(p)
+	require.NoError(t, err)
+	require.Equal(t, &config.Config{
+		Resources: []config.Resource{
+			{Path: NewGlobExpression(t, "/a")},
+			{Path: NewGlobExpression(t, "/b")},
+		},
+	}, c)
+}
+
 func TestLoadFileErrNotExist(t *testing.T) {
 	p := filepath.Join(t.TempDir(), "test_config.yaml")
 	c, err := config.LoadFile(p)
@@ -243,4 +261,11 @@ func TmpFile(t *testing.T, contents string) (tmpFilePath string) {
 	err := os.WriteFile(p, []byte(contents), 0o777)
 	require.NoError(t, err)
 	return p
+}
+
+func NewGlobExpression(t *testing.T, expr string) config.GlobExpression {
+	t.Helper()
+	e, err := config.NewGlobExpression(expr)
+	require.NoError(t, err)
+	return e
 }

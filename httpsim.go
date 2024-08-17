@@ -131,15 +131,17 @@ func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	conf := m.config.Load().(*config.Config)
 	matchedResourceIndex := Match(r, conf)
 	if matchedResourceIndex != -1 {
+		ctxInfo := CtxInfo{MatchedResourceIndex: matchedResourceIndex}
 		ctx := r.Context()
-		delay, replaced := m.apply(w, &conf.Resources[matchedResourceIndex].Effect)
-		ctx = context.WithValue(ctx, CtxKeyInfo, CtxInfo{
-			MatchedResourceIndex: matchedResourceIndex,
-			Delay:                delay,
-			Replaced:             replaced,
-		})
+		effect := conf.Resources[matchedResourceIndex].Effect
+		if effect != nil {
+			ctxInfo.Delay, ctxInfo.Replaced = m.apply(
+				w, conf.Resources[matchedResourceIndex].Effect,
+			)
+		}
+		ctx = context.WithValue(ctx, CtxKeyInfo, ctxInfo)
 		r = r.WithContext(ctx)
-		if replaced {
+		if ctxInfo.Replaced {
 			return
 		}
 	}

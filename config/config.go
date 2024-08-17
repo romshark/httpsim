@@ -24,7 +24,7 @@ type Resource struct {
 	Path    GlobExpression            `yaml:"path"`
 	Headers GlobMap[[]GlobExpression] `yaml:"headers"`
 	Query   GlobMap[[]GlobExpression] `yaml:"query"`
-	Effect  Effect                    `yaml:"effect"`
+	Effect  *Effect                   `yaml:"effect"`
 }
 
 // Headers and Query were previously implemented as slices of structs
@@ -80,7 +80,10 @@ type Effect struct {
 
 var ErrNoEffect = errors.New("no effect")
 
-func (e Effect) Validate() error {
+func (e *Effect) Validate() error {
+	if e == nil {
+		return nil
+	}
 	if (e.Delay == nil || e.Delay != nil && e.Delay.Min == 0) && e.Replace == nil {
 		return ErrNoEffect
 	}

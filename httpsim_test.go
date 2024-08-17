@@ -271,7 +271,7 @@ func TestHandleDur(t *testing.T) {
 	expectedDelay := NewDuration(t, "1.394636475s")
 	conf := config.Config{
 		Resources: []config.Resource{
-			{Effect: config.Effect{
+			{Effect: &config.Effect{
 				Delay: &config.DurRange{Min: time.Second, Max: 2 * time.Second},
 			}},
 		},
@@ -304,7 +304,7 @@ func TestHandleReplace(t *testing.T) {
 	replacedBody := "replaced body"
 	conf := config.Config{
 		Resources: []config.Resource{
-			{Effect: config.Effect{
+			{Effect: &config.Effect{
 				Delay: &config.DurRange{Min: time.Second, Max: 2 * time.Second},
 				Replace: &config.Replace{
 					StatusCode: http.StatusInternalServerError,
@@ -339,7 +339,7 @@ func TestHandleReplace(t *testing.T) {
 func TestHandleReplaceStatusCodeOnly(t *testing.T) {
 	conf := config.Config{
 		Resources: []config.Resource{
-			{Effect: config.Effect{
+			{Effect: &config.Effect{
 				Replace: &config.Replace{
 					StatusCode: http.StatusNoContent,
 				},
@@ -368,7 +368,7 @@ func TestHandleNoMatch(t *testing.T) {
 		Resources: []config.Resource{
 			{
 				Methods: []config.HTTPMethod{http.MethodDelete},
-				Effect: config.Effect{
+				Effect: &config.Effect{
 					Delay: &config.DurRange{Min: time.Second, Max: 2 * time.Second},
 					Replace: &config.Replace{
 						StatusCode: http.StatusInternalServerError,
