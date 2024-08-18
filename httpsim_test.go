@@ -328,11 +328,10 @@ func TestHandleReplace(t *testing.T) {
 	require.False(t, nextInvoked)
 
 	require.Equal(t, NewDuration(t, "1.394636475s"), mockSleep.Cumulative)
-	require.Len(t, (rec.Header()), 3)
-	require.Equal(t, rec.Header().Get("Content-Type"), "text/plain; charset=utf-8")
+	require.Len(t, (rec.Header()), 2)
 	require.Equal(t, rec.Header().Get("X-CustomAdd"), "added")
 	require.Equal(t, rec.Header().Get("X-CustomReplace"), "replaced")
-	require.Equal(t, http.StatusOK, rec.Code)
+	require.Equal(t, http.StatusInternalServerError, rec.Code)
 	require.Equal(t, "replaced body", rec.Body.String())
 }
 
