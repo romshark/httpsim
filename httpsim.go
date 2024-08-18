@@ -211,13 +211,13 @@ func (m *Middleware) apply(w http.ResponseWriter, c *config.Effect) (
 		m.sleeper.Sleep(delay)
 	}
 	if c.Replace != nil {
+		w.WriteHeader(int(c.Replace.StatusCode))
 		for header, value := range c.Replace.Headers {
 			w.Header().Set(string(header), value)
 		}
 		if c.Replace.Body != nil {
 			_, _ = w.Write([]byte(*c.Replace.Body))
 		}
-		w.WriteHeader(int(c.Replace.StatusCode))
 		return delay, true
 	}
 	return delay, false
