@@ -194,6 +194,8 @@ func TestLoadFileErrValidationNoEffect(t *testing.T) {
 resources:
   - path: /specific
     effect:
+      delay:
+        min: 0s
 `)
 	c, err := config.LoadFile(p)
 	require.ErrorIs(t, err, config.ErrNoEffect)
